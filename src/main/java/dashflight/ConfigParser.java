@@ -3,7 +3,6 @@ package dashflight;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +13,8 @@ class ConfigParser {
 
     ConfigParser(String filename) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-
-        data = mapper.readValue(new File(filename), new TypeReference<HashMap<String, Object>>(){});
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        data = mapper.readValue(classloader.getResourceAsStream(filename), new TypeReference<HashMap<String, Object>>(){});
     }
 
      Object getObject(String key) {
