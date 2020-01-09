@@ -1,4 +1,4 @@
-package dashflight.config;
+package config.parser;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

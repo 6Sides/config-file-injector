@@ -1,4 +1,4 @@
-package dashflight.config;
+package config.parser;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

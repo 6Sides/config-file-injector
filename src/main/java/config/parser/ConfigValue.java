@@ -1,4 +1,4 @@
-package dashflight.config;
+package config.parser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package dashflight.config;
+package config.parser;
 
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;

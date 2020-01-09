@@ -1,4 +1,4 @@
-package dashflight.config;
+package config.parser;
 
 public class YamlParsingException extends RuntimeException {
 
