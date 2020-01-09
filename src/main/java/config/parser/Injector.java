@@ -1,6 +1,7 @@
 package config.parser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -11,8 +12,24 @@ public class Injector {
 
     private ConfigParser parser;
 
-    public Injector(String configFile) throws IOException {
-        parser = new ConfigParser(configFile);
+    public static Injector withRemoteFile(String fileUrl) throws IOException {
+        return new Injector(ConfigParser.withRemoteFile(fileUrl));
+    }
+
+    public static Injector withLocalFile(String filePath) throws IOException {
+        return new Injector(ConfigParser.withLocalFile(filePath));
+    }
+
+    public static Injector withString(String yaml) throws IOException {
+        return new Injector(ConfigParser.withString(yaml));
+    }
+
+    public static Injector withInputStream(InputStream input) throws IOException {
+        return new Injector(ConfigParser.withInputStream(input));
+    }
+
+    private Injector(ConfigParser parser) {
+        this.parser = parser;
     }
 
     public void inject(String basePackage) throws YamlParsingException {
