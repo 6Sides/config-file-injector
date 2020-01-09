@@ -29,7 +29,7 @@ class PackageScanner {
         for(ClassPath.ClassInfo info : cp.getAllClasses()) {
             try {
                 classes.add(info.load());
-            } catch (Exception e) {}
+            } catch (Throwable e) {}
         }
 
         return classes;
