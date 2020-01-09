@@ -19,4 +19,7 @@ dependencies {
 
     // Jackson - YAML
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
+
+    // Google Guava
+    implementation("com.google.guava:guava:28.2-jre")
 }

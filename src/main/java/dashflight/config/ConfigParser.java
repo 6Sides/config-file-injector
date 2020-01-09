@@ -1,9 +1,11 @@
-package dashflight;
+package dashflight.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,10 +13,14 @@ class ConfigParser {
 
     private Map<String, Object> data;
 
-    ConfigParser(String filename) throws IOException {
+    ConfigParser(String fileURL) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        data = mapper.readValue(classloader.getResourceAsStream(filename), new TypeReference<HashMap<String, Object>>(){});
+
+        URL fileRequest = new URL(fileURL);
+        URLConnection connection = fileRequest.openConnection();
+        connection.setDoOutput(true);
+
+        data = mapper.readValue(fileRequest.openStream(), new TypeReference<HashMap<String, Object>>(){});
     }
 
      Object getObject(String key) {
