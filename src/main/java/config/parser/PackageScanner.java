@@ -27,7 +27,9 @@ class PackageScanner {
 
         ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
         for(ClassPath.ClassInfo info : cp.getAllClasses()) {
-            classes.add(info.load());
+            try {
+                classes.add(info.load());
+            } catch (Exception e) {}
         }
 
         return classes;
