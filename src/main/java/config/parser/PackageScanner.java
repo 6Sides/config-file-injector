@@ -1,15 +1,17 @@
 package config.parser;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
+import com.google.common.reflect.ClassPath.ClassInfo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-class PackageScanner {
+public class PackageScanner {
 
     private final String basePackage;
 
-    PackageScanner(String packageName) {
+    public PackageScanner(String packageName) {
         this.basePackage = packageName;
     }
 
@@ -19,17 +21,26 @@ class PackageScanner {
      * @return The classes
      * @throws IOException
      */
-    final List<Class<?>> getClasses() throws IOException {
+    public final List<Class<?>> getClasses() throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         assert classLoader != null;
+
 
         ArrayList<Class<?>> classes = new ArrayList<>();
 
         ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
-        for(ClassPath.ClassInfo info : cp.getAllClasses()) {
+
+        ImmutableSet<ClassInfo> scannedClasses;
+        if (this.basePackage == null || this.basePackage.equals("")) {
+            scannedClasses = cp.getAllClasses();
+        } else {
+            scannedClasses = cp.getTopLevelClassesRecursive(this.basePackage);
+        }
+
+        for(ClassInfo info : scannedClasses) {
             try {
                 classes.add(info.load());
-            } catch (Throwable e) {}
+            } catch (Throwable ignored) {}
         }
 
         return classes;

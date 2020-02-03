@@ -1,74 +1,74 @@
 package config.parser;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.File;
+import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
 class ConfigParser {
 
-    private Map<String, Object> data;
+    private static final String environment = System.getenv("environment");
+    private static final String bucket = "www.dashflight.net-config";
 
-    static ConfigParser withRemoteFile(String fileUrl) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private static String applicationName;
 
-        URL fileRequest = new URL(fileUrl);
-        URLConnection connection = fileRequest.openConnection();
-        connection.setDoOutput(true);
+    private static Map<String, String> properties;
 
-        return new ConfigParser(mapper.readValue(fileRequest.openStream(), new TypeReference<HashMap<String, Object>>(){}));
-    }
 
-    static ConfigParser withLocalFile(String filePath) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        return new ConfigParser(mapper.readValue(new File(filePath), new TypeReference<HashMap<String, Object>>(){}));
-    }
+    ConfigParser(String applicationName) {
+        ConfigParser.applicationName = applicationName;
 
-    static ConfigParser withString(String yaml) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        return new ConfigParser(mapper.readValue(yaml, new TypeReference<HashMap<String, Object>>(){}));
-    }
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                .withCredentials(new DefaultAWSCredentialsProviderChain())
+                .build();
 
-    static ConfigParser withInputStream(InputStream input) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        return new ConfigParser(mapper.readValue(input, new TypeReference<HashMap<String, Object>>(){}));
-    }
+        String key = String.format("authentication-api/%s.properties", environment);
 
-    private ConfigParser(Map<String, Object> data) {
-        this.data = data;
-    }
-
-    Object getObject(String key) {
-        String[] parts = key.split("\\.");
-
-        if (parts.length == 1) {
-            return data.get(parts[0]);
+        S3Object configFile;
+        try {
+            configFile = s3Client.getObject(new GetObjectRequest(bucket, key));
+        } catch (AmazonS3Exception ex) {
+            key = String.format("authentication-api/%s.properties", "production");
+            configFile = s3Client.getObject(new GetObjectRequest(bucket, key));
         }
 
-        Map<String, Object> next = null; 
-        for (int i = 0; i < parts.length-1; i++) {
-            next = (Map<String, Object>) data.get(parts[i]);
+        try {
+            properties = new JavaPropsMapper().readValue(configFile.getObjectContent(), new TypeReference<Map<String, String>>(){});
+        } catch (IOException e) {
+            properties = new HashMap<>();
+            e.printStackTrace();
         }
-
-        return next.get(parts[parts.length - 1]);
     }
 
     String getString(String key) {
-        return (String) this.getObject(key);
+        return properties.get(key);
     }
 
     Integer getInt(String key) {
-        return (Integer) this.getObject(key);
+        return Integer.parseInt(getString(key));
+    }
+
+    Double getDouble(String key) {
+        return Double.parseDouble(getString(key));
+    }
+
+    Float getFloat(String key) {
+        return Float.parseFloat(getString(key));
+    }
+
+    Short getShort(String key) {
+        return Short.parseShort(getString(key));
     }
 
     Boolean getBool(String key) {
-        return (Boolean) this.getObject(key);
+        return Boolean.parseBoolean(getString(key));
     }
 
 }
