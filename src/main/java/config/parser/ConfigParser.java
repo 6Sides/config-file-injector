@@ -17,25 +17,21 @@ class ConfigParser {
     private static final String environment = System.getenv("environment");
     private static final String bucket = "www.dashflight.net-config";
 
-    private static String applicationName;
-
     private static Map<String, String> properties;
 
 
     ConfigParser(String applicationName) {
-        ConfigParser.applicationName = applicationName;
-
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new DefaultAWSCredentialsProviderChain())
                 .build();
 
-        String key = String.format("authentication-api/%s.properties", environment);
+        String key = String.format("%s/%s.properties", applicationName, environment);
 
         S3Object configFile;
         try {
             configFile = s3Client.getObject(new GetObjectRequest(bucket, key));
         } catch (AmazonS3Exception ex) {
-            key = String.format("authentication-api/%s.properties", "production");
+            key = String.format("%s/%s.properties", applicationName, "production");
             configFile = s3Client.getObject(new GetObjectRequest(bucket, key));
         }
 
