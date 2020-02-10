@@ -1,6 +1,7 @@
 package config.parser;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
@@ -23,6 +24,7 @@ class ConfigParser {
     ConfigParser(String applicationName) {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new DefaultAWSCredentialsProviderChain())
+                .withRegion(Regions.US_EAST_2)
                 .build();
 
         String key = String.format("%s/%s.properties", applicationName, environment);
