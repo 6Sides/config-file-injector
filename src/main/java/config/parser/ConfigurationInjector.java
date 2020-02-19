@@ -42,22 +42,25 @@ public class ConfigurationInjector {
                         Class<?> fieldType = field.getType();
                         Object value;
 
+                        try {
+                            if (fieldType == Integer.class || fieldType == int.class) {
+                                value = parser.getInt(key);
+                            } else if (fieldType == Double.class || fieldType == double.class) {
+                                value = parser.getDouble(key);
+                            } else if (fieldType == Float.class || fieldType == float.class) {
+                                value = parser.getFloat(key);
+                            } else if (fieldType == Short.class || fieldType == short.class) {
+                                value = parser.getShort(key);
+                            } else if (fieldType == Boolean.class || fieldType == boolean.class) {
+                                value = parser.getBool(key);
+                            } else {
+                                value = parser.getString(key);
+                            }
 
-                        if (fieldType == Integer.class || fieldType == int.class) {
-                            value = parser.getInt(key);
-                        } else if (fieldType == Double.class || fieldType == double.class) {
-                            value = parser.getDouble(key);
-                        } else if (fieldType == Float.class || fieldType == float.class) {
-                            value = parser.getFloat(key);
-                        } else if (fieldType == Short.class || fieldType == short.class) {
-                            value = parser.getShort(key);
-                        } else if (fieldType == Boolean.class || fieldType == boolean.class) {
-                            value = parser.getBool(key);
-                        } else {
-                            value = parser.getString(key);
+                            field.set(null, value);
+                        } catch (Exception e) {
+
                         }
-
-                        field.set(null, value);
                     }
                 }
             }
